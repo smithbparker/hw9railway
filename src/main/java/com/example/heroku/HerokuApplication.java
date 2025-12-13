@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @SpringBootApplication
@@ -55,14 +56,24 @@ public class HerokuApplication {
   String db(Map<String, Object> model) {
     try (Connection connection = dataSource().getConnection()) {
       Statement stmt = connection.createStatement();
-      stmt.executeUpdate("CREATE TABLE IF NOT EXISTS ticks (tick timestamp)");
-      stmt.executeUpdate("INSERT INTO ticks VALUES (now())");
-      ResultSet rs = stmt.executeQuery("SELECT tick FROM ticks");
+      stmt.executeUpdate("CREATE TABLE IF NOT EXISTS ticks (tick timestamp, note varchar(255))");
+      String random = UUID.randomUUID().toString().substring(0, 8);
+      stmt.executeUpdate(
+        "INSERT INTO ticks VALUES (now(), '" + random + "')"
+      );
+
+      ResultSet rs = stmt.executeQuery("SELECT tick, note FROM ticks");
 
       ArrayList<String> output = new ArrayList<String>();
       while (rs.next()) {
-        output.add("Read from DB: " + rs.getTimestamp("tick"));
+        output.add(
+          "Read from DB: " +
+          rs.getTimestamp("tick") +
+          " " +
+          rs.getString("note")
+        );
       }
+
 
       model.put("records", output);
       return "db";
