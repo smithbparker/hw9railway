@@ -56,16 +56,19 @@ public class HerokuApplication {
   String db(Map<String, Object> model) {
     try (Connection connection = dataSource().getConnection()) {
       Statement stmt = connection.createStatement();
-      stmt.executeUpdate("DROP TABLE IF EXISTS ticks");
-      stmt.executeUpdate("CREATE TABLE ticks (tick timestamp, note varchar(255))"
-      );
-
-      String random = UUID.randomUUID().toString().substring(0, 8);
       stmt.executeUpdate(
-        "INSERT INTO ticks VALUES (now(), '" + random + "')"
+        "CREATE TABLE IF NOT EXISTS ticks (" +
+        "tick timestamp, " +
+        "random_string varchar(255))"
       );
 
-      ResultSet rs = stmt.executeQuery("SELECT tick, note FROM ticks");
+      stmt.executeUpdate(
+        "INSERT INTO ticks VALUES (now(), '" + getRandomString() + "')"
+      );
+
+      ResultSet rs =
+        stmt.executeQuery("SELECT tick, random_string FROM ticks");
+
 
       ArrayList<String> output = new ArrayList<String>();
       while (rs.next()) {
