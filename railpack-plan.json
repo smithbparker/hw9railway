@@ -1,6 +1,7 @@
 {
   "packages": {
-    "java": "8",
+    "java": "temurin-8.0.382+5",
     "gradle": "6.9.4"
   }
 }
+
