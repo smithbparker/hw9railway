@@ -41,8 +41,6 @@ public class HerokuApplication {
   @Value("${spring.datasource.url}")
   private String dbUrl;
 
-  @Autowired
-  private DataSource dataSource;
 
   public static void main(String[] args) throws Exception {
     SpringApplication.run(HerokuApplication.class, args);
@@ -55,7 +53,7 @@ public class HerokuApplication {
 
   @RequestMapping("/db")
   String db(Map<String, Object> model) {
-    try (Connection connection = dataSource.getConnection()) {
+    try (Connection connection = dataSource().getConnection()) {
       Statement stmt = connection.createStatement();
       stmt.executeUpdate("CREATE TABLE IF NOT EXISTS ticks (tick timestamp)");
       stmt.executeUpdate("INSERT INTO ticks VALUES (now())");
