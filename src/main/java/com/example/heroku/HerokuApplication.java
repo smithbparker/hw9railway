@@ -18,7 +18,6 @@ package com.example.heroku;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -42,8 +41,7 @@ public class HerokuApplication {
   @Value("${spring.datasource.url}")
   private String dbUrl;
 
-
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     SpringApplication.run(HerokuApplication.class, args);
   }
 
@@ -55,38 +53,49 @@ public class HerokuApplication {
   @RequestMapping("/db")
   String db(Map<String, Object> model) {
     try (Connection connection = dataSource().getConnection()) {
+
       Statement stmt = connection.createStatement();
+
+      // Create table if it doesn't exist
       stmt.executeUpdate(
         "CREATE TABLE IF NOT EXISTS ticks (" +
-        "tick timestamp, " +
-        "random_string varchar(255))"
+        "tick TIMESTAMP, " +
+        "random_string VARCHAR(255))"
       );
 
+      // Insert a NEW row every request
       stmt.executeUpdate(
-        "INSERT INTO ticks VALUES (now(), '" + getRandomString() + "')"
+        "INSERT INTO ticks (tick, random_string) VALUES (now(), '" +
+        getRandomString() + "')"
       );
 
-      ResultSet rs =
-        stmt.executeQuery("SELECT tick, random_string FROM ticks");
+      // Read ALL rows
+      ResultSet rs = stmt.executeQuery(
+        "SELECT tick, random_string FROM ticks ORDER BY tick DESC"
+      );
 
+      ArrayList<String> output = new ArrayList<>();
 
-      ArrayList<String> output = new ArrayList<String>();
       while (rs.next()) {
         output.add(
           "Read from DB: " +
-          rs.getTimestamp("tick") +
-          " " +
-          rs.getString("note")
+          rs.getTimestamp("tick") + " " +
+          rs.getString("random_string")
         );
       }
 
-
       model.put("records", output);
       return "db";
+
     } catch (Exception e) {
       model.put("message", e.getMessage());
       return "error";
     }
+  }
+
+  // Generates a short random string
+  private String getRandomString() {
+    return UUID.randomUUID().toString().substring(0, 8);
   }
 
   @Bean
@@ -99,5 +108,5 @@ public class HerokuApplication {
       return new HikariDataSource(config);
     }
   }
-
 }
+
