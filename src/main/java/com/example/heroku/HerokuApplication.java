@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,15 +56,13 @@ public class HerokuApplication {
 
       Statement stmt = connection.createStatement();
 
-      // Create table if it doesn't exist
-      stmt.executeUpdate("DROP TABLE IF EXISTS ticks");
-
+      // FIXED: Removed "DROP TABLE" so data is saved.
+      // FIXED: Added "IF NOT EXISTS" so it doesn't crash on the second refresh.
       stmt.executeUpdate(
-        "CREATE TABLE ticks (" +
+        "CREATE TABLE IF NOT EXISTS ticks (" +
         "tick TIMESTAMP, " +
         "random_string VARCHAR(255))"
       );
-
 
       // Insert a NEW row every request
       stmt.executeUpdate(
@@ -112,4 +110,3 @@ public class HerokuApplication {
     }
   }
 }
-
