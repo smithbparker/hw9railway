@@ -54,6 +54,8 @@ public class HerokuApplication {
   String db(Map<String, Object> model) {
     try (Connection connection = dataSource().getConnection()) {
 
+      System.out.println("CS471 Railway log - Parker Smith");
+
       Statement stmt = connection.createStatement();
 
       // FIXED: Removed "DROP TABLE" so data is saved.
