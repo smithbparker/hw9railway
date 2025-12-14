@@ -57,11 +57,14 @@ public class HerokuApplication {
       Statement stmt = connection.createStatement();
 
       // Create table if it doesn't exist
+      stmt.executeUpdate("DROP TABLE IF EXISTS ticks");
+
       stmt.executeUpdate(
-        "CREATE TABLE IF NOT EXISTS ticks (" +
+        "CREATE TABLE ticks (" +
         "tick TIMESTAMP, " +
         "random_string VARCHAR(255))"
       );
+
 
       // Insert a NEW row every request
       stmt.executeUpdate(
